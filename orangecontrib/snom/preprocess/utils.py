@@ -75,10 +75,6 @@ class PreprocessImageOpts2DOnlyWhole(PreprocessImageOpts):
             image_opts["attr_value"] = attr
             try:
                 temp = _prepare_table_for_image(newdata, image_opts)
-            except KeyError:
-                raise WrongReferenceException("Data and reference do not contain the same features")
-            
-            try:
                 image, indices = _image_from_table(temp, image_opts)
                 transformed = self.transform_image(image, newdata)
                 M[:,i] = transformed[indices].reshape(-1)
@@ -114,6 +110,8 @@ class PreprocessImageOpts2DOnlyWholeReference(PreprocessImageOpts):
         reflen = len(ref_attrs)
         image_opts_ref = image_opts.copy()
 
+        # Check if reference is compatible: it has to have the same features as data
+        # or be single-featured
         if attrs_to_run != ref_attrs or reflen != 1:
             WrongReferenceException("Reference has to contain the same features or be single-featured")
         
@@ -130,10 +128,6 @@ class PreprocessImageOpts2DOnlyWholeReference(PreprocessImageOpts):
             try:
                 temp = _prepare_table_for_image(newdata, image_opts)
                 reference = _prepare_table_for_image(self.reference, image_opts_ref)
-            except KeyError:
-                raise WrongReferenceException("Data and reference do not contain the same features")
-            
-            try:
                 image, indices = _image_from_table(temp, image_opts)
                 ref_image, _ = _image_from_table(reference, image_opts_ref)
                 transformed = self.transform_image(image,ref_image, newdata)
